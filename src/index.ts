@@ -1,14 +1,17 @@
+import 'dotenv/config';
 import express, { Request, Response } from 'express';
 import { PrismaClient } from './generated/prisma/client'
 import { PrismaPg } from '@prisma/adapter-pg';
 
-const adapter = new PrismaPg({ 
-  connectionString: process.env.DATABASE_URL 
+const adapter = new PrismaPg({
+  connectionString: process.env.DATABASE_URL
 });
 
 const app = express();
-const prisma = new PrismaClient({adapter})
+const prisma = new PrismaClient({ adapter })
 const PORT = 3000;
+
+console.log("Connecting to:", process.env.DATABASE_URL);
 
 app.use(express.json());
 

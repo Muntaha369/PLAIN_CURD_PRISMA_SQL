@@ -26,14 +26,16 @@ async function checkConnection() {
   }
 }
 
-app.get('/', (req: Request, res: Response) => {
-  res.json({ message: 'Hello from the basic TypeScript Express server!' });
+app.get('/', async (req: Request, res: Response) => {
+  const allUser = await prisma.user.findMany()
+
+  res.json({ msg: "This are all the user", allUser })
 });
 
 app.post('/postRoute', async (req: Request, res: Response) => {
-  const { name } = req.body;
+  const { name, password, loan } = req.body;
 
-  const user = await prisma.user.create({ data: { name } })
+  const user = await prisma.user.create({ data: { name, password, loan } })
 
   res.json({ msg: "This is the user created", user })
 })

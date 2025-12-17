@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  app:
+    image: node:20-alpine
+    ports:
+      - "3000:3000"
+    working_dir: /usr/src/app
+    environment:
+      # 1. Updated Database name in the connection string
+      DATABASE_URL: "postgresql://postgres:password123@db:5432/dev_app_db?schema=public"
+      NODE_ENV: development
+    volumes:
+      - .:/usr/src/app
+    command: sh -c "npm install && npx prisma generate && npx prisma migrate deploy && npm run dev"
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password123
+      # 2. Updated the actual DB name created on startup
+      POSTGRES_DB: dev_app_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_new_data:/var/lib/postgresql/data
+    healthcheck:
+      # 3. Updated the healthcheck to look for the new DB name
+      test: ["CMD-SHELL", "pg_isready -U postgres -d dev_app_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+volumes:
+  # Renamed volume to ensure a fresh start
+  postgres_new_data:
